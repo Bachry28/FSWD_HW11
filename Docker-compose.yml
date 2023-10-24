@@ -1,0 +1,31 @@
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  bald:
+    build: .  # Membangun layanan dari direktori saat ini
+    networks:
+      - app-tier  # Menghubungkan layanan ini dengan jaringan app-tier
+    ports:
+      - "5000:5000"  # Meneruskan port 8090 dari host ke kontainer
+    depends_on:
+      - pgsqldb  # Menyatakan bahwa layanan ini bergantung pada pgsqldb
+    volumes:
+      - "./:/bald/src/app"  # Memetakan direktori host ke dalam kontainer
+
+  pgsqldb:
+    image: postgres:16  
+    ports:
+      - "5432:5432"  # Meneruskan port 5432 dari host ke kontainer
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: postgres  # Nama pengguna PostgreSQL
+      POSTGRES_PASSWORD: 280595  # Kata sandi untuk pengguna PostgreSQL
+      POSTGRES_DB: database_todo_development  # Nama database yang akan dibuat
+      POSTGRES_HOST: pgsqldb
+    networks:
+      - app-tier  # Menghubungkan layanan ini dengan jaringan app-tier
